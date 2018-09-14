@@ -1,0 +1,27 @@
+---
+- name: Import InfluxDB packaging GPG signing key
+  apt_key:
+    url: https://repos.influxdata.com/influxdb.key
+    state: present
+
+- name: Add InfluxDB repository
+  apt_repository:
+    repo: "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Install InfluxDB packages
+  apt:
+    name: influxdb
+    state: present
+
+# the influxdb config file moves quickly, so just update the known issues
+- name: Configure /etc/influxdb/influxdb.conf
+  ini_file:
+    path: /etc/influxdb/influxdb.conf
+    section: "{{ item.section }}"
+    option: "{{ item.option }}"
+    value: "{{ item.value }}"
+  with_items:
+    - { section: null, option: "bind-address", value: "\"127.0.0.1:8088\"" }
+    - { section: "http", option: "bind-address", value: "\"127.0.0.1:8086\"" }
+  notify: restart influxdb
