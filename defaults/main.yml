@@ -1,0 +1,3 @@
+---
+# /etc/influxdb/influxdb.conf root directory for metadata, data, wal:
+influxdb_root: "/var/lib/influxdb"

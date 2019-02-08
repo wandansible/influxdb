@@ -19,14 +19,40 @@
     name: influxdb
     state: present
 
+# If we're moving the influxdb root directory then it might not exist
+- name: Check influxdb database directory exists
+  file:
+    path: "{{ influxdb_root }}"
+    state: directory
+    owner: influxdb
+    group: influxdb
+
+# Warn users that /etc/influxdb/influxdb.conf is managed by ansible (even
+# though only some of the lines actually are).
+- name: Mark /etc/influxdb/influxdb.conf as managed by ansible
+  lineinfile:
+    dest: /etc/influxdb/influxdb.conf
+    line: "# Ansible managed"
+    state: present
+    insertbefore: BOF
+
 # the influxdb config file moves quickly, so just update the known issues
 - name: Configure /etc/influxdb/influxdb.conf
   ini_file:
     path: /etc/influxdb/influxdb.conf
     section: "{{ item.section }}"
     option: "{{ item.option }}"
-    value: "{{ item.value }}"
+    value: "\"{{ item.value }}\""
   with_items:
-    - { section: null, option: "bind-address", value: "\"127.0.0.1:8088\"" }
-    - { section: "http", option: "bind-address", value: "\"127.0.0.1:8086\"" }
+    - { section: null, option: "bind-address", value: "127.0.0.1:8088" }
+    - { section: "http", option: "bind-address", value: "127.0.0.1:8086" }
+    - { section: "meta", option: "dir", value: "{{ influxdb_root }}/meta" }
+    - { section: "data", option: "dir", value: "{{ influxdb_root }}/data" }
+    - { section: "data", option: "wal-dir", value: "{{ influxdb_root }}/wal" }
   notify: restart influxdb
+
+# Influx needs to be running so packages can configure it during postinst
+- name: Check influxdb is running
+  service:
+    name: influxdb.service
+    state: started
