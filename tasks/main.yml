@@ -9,11 +9,6 @@
     repo: "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
     state: present
 
-- name: Pin InfluxDB packages to known good version
-  template:
-    src: "templates/influxdb.pref"
-    dest: "/etc/apt/preferences.d/influxdb.pref"
-
 - name: Install InfluxDB packages
   apt:
     name: influxdb
