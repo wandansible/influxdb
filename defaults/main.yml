@@ -1,3 +1,11 @@
 ---
 # /etc/influxdb/influxdb.conf root directory for metadata, data, wal:
 influxdb_root: "/var/lib/influxdb"
+
+influxdb_settings:
+  - { section: null, option: "bind-address", value: '"127.0.0.1:8088"' }
+  - { section: "http", option: "bind-address", value: '"127.0.0.1:8086"' }
+  - { section: "meta", option: "dir", value: '"{{ influxdb_root }}/meta"' }
+  - { section: "data", option: "dir", value: '"{{ influxdb_root }}/data"' }
+  - { section: "data", option: "wal-dir", value: '"{{ influxdb_root }}/wal"' }
+  - { section: "data", option: "query-log-enabled", value: 'false' }
