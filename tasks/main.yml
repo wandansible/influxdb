@@ -1,6 +1,7 @@
 ---
 - name: Import InfluxDB packaging GPG signing key
   apt_key:
+    id: "{{ influxdb_apt_key_fingerprint }}"
     url: https://repos.influxdata.com/influxdb.key
     state: present
 
