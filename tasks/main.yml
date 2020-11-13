@@ -40,6 +40,8 @@
     option: "{{ item.option }}"
     value: "{{ item.value }}"
   loop: "{{ influxdb_settings }}"
+  loop_control:
+    label: "{{ item.option }}={{ item.value }}"
   notify: restart influxdb
 
 # Influx needs to be running so packages can configure it during postinst
