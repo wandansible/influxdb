@@ -39,7 +39,7 @@
     section: "{{ item.section }}"
     option: "{{ item.option }}"
     value: "{{ item.value }}"
-  with_items: "{{ influxdb_settings }}"
+  loop: "{{ influxdb_settings }}"
   notify: restart influxdb
 
 # Influx needs to be running so packages can configure it during postinst
