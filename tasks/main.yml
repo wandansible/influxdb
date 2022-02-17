@@ -1,32 +1,49 @@
 ---
+- name: Remove old InfluxDB apt repository entry
+  ansible.builtin.apt_repository:
+    repo: deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+    update_cache: no
+    state: absent
+
+- name: Remove InfluxDB apt signing key from default apt keyring
+  ansible.builtin.apt_key:
+    id: "{{ influxdb_apt_key_fingerprint }}"
+    keyring: /etc/apt/trusted.gpg
+    state: absent
+
 - name: Import InfluxDB packaging GPG signing key
-  apt_key:
+  ansible.builtin.apt_key:
     id: "{{ influxdb_apt_key_fingerprint }}"
     url: https://repos.influxdata.com/influxdb.key
+    keyring: /usr/share/keyrings/influxdb.gpg
     state: present
 
 - name: Add InfluxDB repository
-  apt_repository:
-    repo: "deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [signed-by=/usr/share/keyrings/influxdb.gpg]
+      https://repos.influxdata.com/{{ ansible_distribution | lower }}
+      {{ ansible_distribution_release }} stable
     state: present
 
 - name: Install InfluxDB packages
-  apt:
+  ansible.builtin.apt:
     name: influxdb
     state: present
 
 # If we're moving the influxdb root directory then it might not exist
 - name: Check influxdb database directory exists
-  file:
+  ansible.builtin.file:
     path: "{{ influxdb_root }}"
     state: directory
     owner: influxdb
     group: influxdb
+    mode: u=rwx,g=rx,o=rx
 
 # Warn users that /etc/influxdb/influxdb.conf is managed by ansible (even
 # though only some of the lines actually are).
 - name: Mark /etc/influxdb/influxdb.conf as managed by ansible
-  lineinfile:
+  ansible.builtin.lineinfile:
     dest: /etc/influxdb/influxdb.conf
     line: "# Ansible managed"
     state: present
@@ -34,11 +51,12 @@
 
 # the influxdb config file moves quickly, so just update the known issues
 - name: Configure /etc/influxdb/influxdb.conf
-  ini_file:
+  community.general.ini_file:
     path: /etc/influxdb/influxdb.conf
     section: "{{ item.section }}"
     option: "{{ item.option }}"
     value: "{{ item.value }}"
+    mode: u=rw,g=r,o=r
   loop: "{{ influxdb_settings }}"
   loop_control:
     label: "{{ item.option }}={{ item.value }}"
@@ -46,6 +64,6 @@
 
 # Influx needs to be running so packages can configure it during postinst
 - name: Check influxdb is running
-  service:
+  ansible.builtin.service:
     name: influxdb.service
     state: started
