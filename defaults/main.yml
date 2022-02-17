@@ -5,10 +5,24 @@ influxdb_apt_key_fingerprint: "05CE15085FC09D18E99EFB22684A14CF2582E0C5"
 influxdb_root: "/var/lib/influxdb"
 
 influxdb_settings:
-  - { section: null, option: "bind-address", value: '"127.0.0.1:8088"' }
-  - { section: "http", option: "bind-address", value: '"127.0.0.1:8086"' }
-  - { section: "http", option: "log-enabled", value: 'false' }
-  - { section: "meta", option: "dir", value: '"{{ influxdb_root }}/meta"' }
-  - { section: "data", option: "dir", value: '"{{ influxdb_root }}/data"' }
-  - { section: "data", option: "wal-dir", value: '"{{ influxdb_root }}/wal"' }
-  - { section: "data", option: "query-log-enabled", value: 'false' }
+  - section: null
+    option: "bind-address"
+    value: '"127.0.0.1:8088"'
+  - section: "http"
+    option: "bind-address"
+    value: '"127.0.0.1:8086"'
+  - section: "http"
+    option: "log-enabled"
+    value: 'false'
+  - section: "meta"
+    option: "dir"
+    value: '"{{ influxdb_root }}/meta"'
+  - section: "data"
+    option: "dir"
+    value: '"{{ influxdb_root }}/data"'
+  - section: "data"
+    option: "wal-dir"
+    value: '"{{ influxdb_root }}/wal"'
+  - section: "data"
+    option: "query-log-enabled"
+    value: 'false'
