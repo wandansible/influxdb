@@ -1,8 +1,7 @@
 ---
 - name: Remove old InfluxDB apt repository entry
-  ansible.builtin.apt_repository:
-    repo: deb https://repos.influxdata.com/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
-    update_cache: no
+  ansible.builtin.file:
+    path: /etc/apt/sources.list.d/repos_influxdata_com_{{ ansible_distribution | lower }}.list
     state: absent
 
 - name: Remove InfluxDB apt signing key from default apt keyring
@@ -24,6 +23,7 @@
       deb [signed-by=/usr/share/keyrings/influxdb.gpg]
       https://repos.influxdata.com/{{ ansible_distribution | lower }}
       {{ ansible_distribution_release }} stable
+    filename: influxdb
     state: present
 
 - name: Install InfluxDB packages
