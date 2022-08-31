@@ -1,5 +1,5 @@
 ---
-- name: Remove old InfluxDB apt repository entry
+- name: Remove old InfluxDB apt sources.list file
   ansible.builtin.file:
     path: /etc/apt/sources.list.d/repos_influxdata_com_{{ ansible_distribution | lower }}.list
     state: absent
@@ -10,17 +10,40 @@
     keyring: /etc/apt/trusted.gpg
     state: absent
 
+- name: Remove old InfluxDB apt repository entry
+  ansible.builtin.apt_repository:
+    repo: >-
+      deb [signed-by=/usr/share/keyrings/influxdb.gpg]
+      https://repos.influxdata.com/{{ ansible_distribution | lower }}
+      {{ ansible_distribution_release }} stable
+    filename: influxdb
+    update_cache: no
+    state: absent
+
+- name: Remove InfluxDB apt signing key from /usr/share/keyrings
+  ansible.builtin.file:
+    path: /usr/share/keyrings/influxdb.gpg
+    state: absent
+
+- name: Create apt keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=rx
+
 - name: Import InfluxDB packaging GPG signing key
   ansible.builtin.apt_key:
     id: "{{ influxdb_apt_key_fingerprint }}"
     url: https://repos.influxdata.com/influxdb.key
-    keyring: /usr/share/keyrings/influxdb.gpg
+    keyring: /etc/apt/keyrings/influxdb.gpg
     state: present
 
 - name: Add InfluxDB repository
   ansible.builtin.apt_repository:
     repo: >-
-      deb [signed-by=/usr/share/keyrings/influxdb.gpg]
+      deb [signed-by=/etc/apt/keyrings/influxdb.gpg]
       https://repos.influxdata.com/{{ ansible_distribution | lower }}
       {{ ansible_distribution_release }} stable
     filename: influxdb
