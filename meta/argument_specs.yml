@@ -1,0 +1,33 @@
+---
+argument_specs:
+  main:
+    short_description: Install and configure InfluxDB
+    options:
+      influxdb_apt_key_fingerprint:
+        description: Fingerprint for influxdb apt signing key
+        type: str
+
+      influxdb_root:
+        description: Root directory for metadata, data, and wal
+        type: str
+        default: /var/lib/influxdb
+
+      influxdb_settings:
+        description: Configuration for influxdb
+        type: list
+        elements: dict
+        options:
+          section:
+            description: |
+              Name of the section
+              (use null to place a setting before the first section)
+            type: raw
+            required: true
+          option:
+            description: Name of the option
+            type: str
+            required: true
+          value:
+            description: Value for the option
+            type: str
+            required: true
